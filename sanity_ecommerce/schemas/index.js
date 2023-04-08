@@ -1,4 +1,6 @@
 import banner from './banner'
-import banana from './product'
+import product from './product'
+import cart from './cart'
+import user from './user'
 
-export const schemaTypes = [banner, banana]
+export const schemaTypes = [banner, product, cart, user]

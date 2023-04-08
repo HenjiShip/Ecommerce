@@ -9,9 +9,48 @@ export const StateContext = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalQuantities, setTotalQuantities] = useState(0);
+  const [user, setUser] = useState(null);
   const [qty, setQty] = useState(1);
 
-  const onAdd = (product, quantity) => {
+  useEffect(() => {
+    setCartItems(JSON.parse(localStorage.getItem("cartItems")) || []);
+    setTotalQuantities(
+      JSON.parse(localStorage.getItem("totalQuantities")) || 0
+    );
+    setTotalPrice(JSON.parse(localStorage.getItem("totalPrice")) || 0);
+  }, []);
+
+  const updateCart = async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const cartInfo = {
+      cartItems: JSON.parse(localStorage.getItem("cartItems")) || [],
+      totalPrice: JSON.parse(localStorage.getItem("totalQuantities")) || 0,
+      totalQuantities: JSON.parse(localStorage.getItem("totalPrice")) || 0,
+    };
+
+    if (user) {
+      const { data } = await api.updateCart(cartInfo);
+    }
+  };
+
+  // const getUserCart = async () => {
+  //   const { data } = await api.getUserCart();
+  // };
+
+  const persistCartItems = () => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    localStorage.setItem("totalPrice", JSON.stringify(totalPrice));
+    localStorage.setItem("totalQuantities", JSON.stringify(totalQuantities));
+    // if user has items in cart while logged out, and then logs in, user's logged out items get added to their accounts cart. so i should add the local storage items to the serverside cart if the item ids match
+    // if use has items in cart and logs out, it clears the cart.
+  };
+
+  useEffect(() => {
+    persistCartItems();
+    updateCart();
+  }, [cartItems]);
+
+  const onAdd = async (product, quantity) => {
     const checkProductInCart = cartItems.find(
       (item) => item._id === product._id
     );
@@ -23,6 +62,8 @@ export const StateContext = ({ children }) => {
       const updatedCartItems = cartItems.map((cartProduct) => {
         if (cartProduct._id === product._id) {
           return { ...cartProduct, quantity: cartProduct.quantity + quantity };
+        } else {
+          return cartProduct;
         }
       });
       setCartItems(updatedCartItems);
@@ -31,9 +72,28 @@ export const StateContext = ({ children }) => {
       setCartItems([...cartItems, { ...product }]);
     }
     toast.success(`${qty} ${product.name} added to cart.`);
-    console.log(cartItems);
   };
 
+  // const onAdd = async (product, quantity) => {
+  //   const checkProductInCart = cartItems.find(
+  //     (item) => item._id === product._id
+  //   );
+  //   const updatedCartItems = checkProductInCart
+  //     ? cartItems.map((cartProduct) =>
+  //         cartProduct._id === product._id
+  //           ? { ...cartProduct, quantity: cartProduct.quantity + quantity }
+  //           : cartProduct
+  //       )
+  //     : [...cartItems, { ...product, quantity }];
+  //   setCartItems(updatedCartItems);
+  //   setTotalPrice(
+  //     (prevTotalPrice) => prevTotalPrice + product.price * quantity
+  //   );
+  //   setTotalQuantities((prevTotalQuantities) => prevTotalQuantities + quantity);
+  //   toast.success(`${quantity} ${product.name} added to cart.`);
+  // };
+
+  
   const toggleCartItemQuantity = (id, value) => {
     const updatedCartItems = cartItems.map((item) => {
       if (item._id === id) {
@@ -67,12 +127,18 @@ export const StateContext = ({ children }) => {
     });
   };
 
-  const funcTest = async () => {
-    const { data } = await api.fetchPost();
+  const logout = () => {
+    localStorage.clear("user");
+    api.logout();
+    console.log("i ran");
+    setUser(null);
   };
 
   const login = async () => {
     const { data } = await api.login();
+    const exp = Date.now() + 7 * 24 * 60 * 60 * 1000;
+    const userData = { data, exp };
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   return (
@@ -83,14 +149,16 @@ export const StateContext = ({ children }) => {
         totalPrice,
         totalQuantities,
         qty,
+        user,
         setQty,
         incQty,
         decQty,
         onAdd,
         setShowCart,
         toggleCartItemQuantity,
-        funcTest,
         login,
+        logout,
+        setUser,
       }}
     >
       {children}

@@ -1,11 +1,28 @@
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/router";
 import { AiOutlineShopping } from "react-icons/ai";
 import { Cart } from "./";
 import { useStateContext } from "../context/StateContext";
 
 const Navbar = () => {
-  const { showCart, setShowCart, totalQuantities } = useStateContext();
+  const router = useRouter();
+  const {
+    showCart,
+    setShowCart,
+    totalQuantities,
+    logout,
+    setUser,
+    user,
+  } = useStateContext();
+
+  useEffect(() => {
+    setUser(JSON.parse(localStorage.getItem("user")));
+    if (user && Date.now() > user.expire) {
+      localStorage.removeItem("user");
+    }
+  }, [router.pathname]);
+
   return (
     <div className="navbar-container">
       <p className="logo">
@@ -20,9 +37,15 @@ const Navbar = () => {
           <AiOutlineShopping />
           <span className="cart-item-qty">{totalQuantities}</span>
         </button>
-        <Link href="/login">
-          <button type="button"> Login </button>
-        </Link>
+        {user ? (
+          <button type="button" onClick={() => logout()}>
+            Logout
+          </button>
+        ) : (
+          <Link href="/login">
+            <button type="button">Login</button>
+          </Link>
+        )}
       </div>
 
       {showCart && <Cart />}

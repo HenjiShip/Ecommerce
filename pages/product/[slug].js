@@ -12,11 +12,10 @@ import { useStateContext } from "../../context/StateContext";
 const ProductDetails = ({ product, products }) => {
   const { image, name, details, price } = product;
   const [index, setIndex] = useState(0);
-  const { decQty, incQty, qty, onAdd, setQty, funcTest } = useStateContext();
+  const { decQty, incQty, qty, onAdd, setQty } = useStateContext();
 
   useEffect(() => {
     setQty(1);
-    funcTest();
   }, [product._id]);
 
   return (
