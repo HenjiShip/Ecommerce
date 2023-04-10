@@ -14,7 +14,8 @@ const login = () => {
       API.defaults.headers.common["Authorization"] = await `Bearer ${token}`;
       login();
       // get name and profile image from login response and add it to local storage
-      router.push("/");
+      await router.push("/");
+      router.reload();
     } catch (error) {
       console.log(error);
     }

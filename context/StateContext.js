@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/router.js";
 import { toast } from "react-hot-toast";
 import * as api from "../api/index.js";
 
@@ -12,28 +13,39 @@ export const StateContext = ({ children }) => {
   const [user, setUser] = useState(null);
   const [qty, setQty] = useState(1);
 
+  const router = useRouter();
+
   useEffect(async () => {
-    await getUserCart();
-    setCartItems(JSON.parse(localStorage.getItem("cartItems")) || []);
-    setTotalQuantities(
-      JSON.parse(localStorage.getItem("totalQuantities")) || 0
-    );
-    setTotalPrice(JSON.parse(localStorage.getItem("totalPrice")) || 0);
+    const userData = JSON.parse(localStorage.getItem("user"));
+    if (userData) {
+      await setUser(userData.data);
+      await getUserCart();
+    }
+
+    await setCartItems(JSON.parse(localStorage.getItem("cartItems")) || []);
   }, []);
 
+  const calculateTotalQuantityAndPrice = () => {
+    const cartCopy = JSON.parse(localStorage.getItem("cartItems"));
+    let totalQuantity = 0;
+    let totalPrice = 0;
+    {
+      cartCopy.map((item) => {
+        totalQuantity = totalQuantity + item.quantity;
+        totalPrice = totalPrice + item.quantity * item.price;
+      });
+    }
+    setTotalQuantities(totalQuantity);
+    setTotalPrice(totalPrice);
+    localStorage.setItem("totalQuantities", JSON.stringify(totalQuantity));
+    localStorage.setItem("totalPrice", JSON.stringify(totalPrice));
+  };
+
   const getUserCart = async () => {
-    console.log("replace empty cart with user cart");
     const { data } = await api.getUserCart();
-    const { totalPrice, totalQuantities, cartItems } = data[0];
+    const { cartItems } = data[0];
 
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    localStorage.setItem("totalPrice", JSON.stringify(totalPrice));
-    await localStorage.setItem(
-      "totalQuantities",
-      JSON.stringify(totalQuantities)
-    );
-    if (user) {
-    }
   };
 
   const updateCart = async () => {
@@ -49,19 +61,19 @@ export const StateContext = ({ children }) => {
   };
 
   const persistCartItems = () => {
-    if (user) {
-    }
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    localStorage.setItem("totalPrice", JSON.stringify(totalPrice));
-    localStorage.setItem("totalQuantities", JSON.stringify(totalQuantities));
+    // localStorage.setItem("totalPrice", JSON.stringify(totalPrice));
+    // localStorage.setItem("totalQuantities", JSON.stringify(totalQuantities));
+
+    // How Amazon works
     // if user has items in cart while logged out, and then logs in, user's logged out items get added to their accounts cart. so i should add the local storage items to the serverside cart if the item ids match
-    // if use has items in cart and logs out, it clears the cart.
+    // if user has items in cart and logs out, it clears the cart.
   };
 
   useEffect(() => {
-    console.log("and i should run second");
     persistCartItems();
     updateCart();
+    calculateTotalQuantityAndPrice();
   }, [cartItems]);
 
   const onAdd = async (product, quantity) => {
@@ -118,13 +130,17 @@ export const StateContext = ({ children }) => {
     localStorage.clear("user");
     api.logout();
     setUser(null);
+    router.reload();
   };
 
   const login = async () => {
+    await localStorage.clear();
+    // temporarily clearing cart here because i don't feel like adding a logged out user's cart to their cart when they log in yet
+    // to do this though, i would just compare the logged out user's cart to see if any id's match and add to quantity if it does and just add the items if they dont
     const { data } = await api.login();
     const exp = Date.now() + 7 * 24 * 60 * 60 * 1000;
     const userData = { data, exp };
-    localStorage.setItem("user", JSON.stringify(userData));
+    await localStorage.setItem("user", JSON.stringify(userData));
   };
 
   return (

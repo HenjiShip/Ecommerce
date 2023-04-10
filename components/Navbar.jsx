@@ -12,12 +12,10 @@ const Navbar = () => {
     setShowCart,
     totalQuantities,
     logout,
-    setUser,
     user,
   } = useStateContext();
 
-  useEffect(() => {
-    setUser(JSON.parse(localStorage.getItem("user")));
+  useEffect(async () => {
     if (user && Date.now() > user.expire) {
       localStorage.removeItem("user");
     }

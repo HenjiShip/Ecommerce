@@ -121,7 +121,8 @@ const authCookie = async (req, res, next) => {
     // retrieve cart here
     next();
   } catch (error) {
-    console.log(error);
+    console.log({ message: "I failed at authCookie" });
+    return res.sendStatus(404);
   }
 };
 

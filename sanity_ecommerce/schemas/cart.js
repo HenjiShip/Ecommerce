@@ -10,16 +10,6 @@ export default {
       type: 'string',
     },
     {
-      name: 'totalPrice',
-      title: 'Total Price',
-      type: 'number',
-    },
-    {
-      name: 'totalQuantities',
-      title: 'Total Quantities',
-      type: 'number',
-    },
-    {
       name: 'userId',
       title: 'User Id',
       type: 'string',

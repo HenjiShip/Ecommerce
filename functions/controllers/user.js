@@ -21,7 +21,7 @@ const logout = async (req, res) => {
 const updateCart = async (req, res) => {
   try {
     const cartInfo = req.body;
-    const { cartItems, totalPrice, totalQuantities } = cartInfo;
+    const { cartItems } = cartInfo;
     const currentUserId = req.userInfo.userId;
 
     // Fetch all carts that belong to the current user
@@ -35,10 +35,7 @@ const updateCart = async (req, res) => {
       const { _id } = cart;
 
       // Update the cart document with the new cart items, total price, and total quantities
-      await client
-        .patch(_id)
-        .set({ cartItems, totalPrice, totalQuantities })
-        .commit();
+      await client.patch(_id).set({ cartItems }).commit();
     }
     res.sendStatus(200);
   } catch (error) {
@@ -49,14 +46,18 @@ const updateCart = async (req, res) => {
 const getUserCart = async (req, res) => {
   try {
     const currentUserId = req.userInfo.userId;
-    const carts = await client.fetch(
-      `*[_type == "carts" && userId == $userId]`,
-      {
-        userId: currentUserId,
-        force: true,
-      }
-    );
-    res.json(carts);
+    if (currentUserId) {
+      const carts = await client.fetch(
+        `*[_type == "carts" && userId == $userId]`,
+        {
+          userId: currentUserId,
+          force: true,
+        }
+      );
+      res.json(carts);
+    } else {
+      res.status(404).json({ message: "User is not logged in" });
+    }
   } catch (error) {
     console.log({ message: "Failed to getUserCart" });
   }
