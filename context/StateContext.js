@@ -22,10 +22,10 @@ export const StateContext = ({ children }) => {
       await getUserCart();
     }
 
-    await setCartItems(JSON.parse(localStorage.getItem("cartItems")) || []);
-
-    const { data } = await api.netlifyTest();
-    console.log(data);
+    const cartItems = localStorage.getItem("cartItems");
+    await setCartItems(
+      cartItems && cartItems !== "undefined" ? JSON.parse(cartItems) : []
+    );
   }, []);
 
   const calculateTotalQuantityAndPrice = () => {

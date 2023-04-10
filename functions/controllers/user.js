@@ -1,12 +1,5 @@
 const { client } = require("../util/client.js");
 
-const netlifyTest = async (req, res) => {
-  try {
-    console.log("I ran");
-    res.json("This is running");
-  } catch (error) {}
-};
-
 const login = async (req, res) => {
   try {
     const { name, picture } = req.userAuth;
@@ -76,4 +69,4 @@ const getUserCart = async (req, res) => {
 // const cartItems = carts[0].cartItems;
 // res.json(cartItems);
 
-module.exports = { login, logout, updateCart, getUserCart, netlifyTest };
+module.exports = { login, logout, updateCart, getUserCart };
