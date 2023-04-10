@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const API = axios.create({
-  baseURL: "http://localhost:8888/.netlify/functions/api",
+  baseURL: "https://drizco.netlify.app/.netlify/functions/api",
   headers: {
     apiKey: process.env.NEXT_PUBLIC_API_KEY,
   },
