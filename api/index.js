@@ -2,6 +2,7 @@ import axios from "axios";
 
 export const API = axios.create({
   baseURL: "http://localhost:8888/.netlify/functions/api",
+  // REMEMBER TO CHANGE YOUR BASEURL WHEN DEPLOYING OR YOUR SERVERLESS FUNCTIONS WILL NOT WORK!!!!!!!!!!!!!!
   headers: {
     apiKey: process.env.NEXT_PUBLIC_API_KEY,
   },
