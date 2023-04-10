@@ -70,7 +70,7 @@ const auth = async (req, res, next) => {
         userId: decodedData.sub,
       });
     }
-    
+
     if (req.userAuth) {
       next();
     } else {
@@ -110,7 +110,8 @@ const createCookie = async (req, res, next) => {
 // authenticates subsequent requests from specific cookieId
 const authCookie = async (req, res, next) => {
   try {
-    const token = await req.cookies.userInfo;
+    const token = req.cookies.userInfo;
+
     const decodedData = await jwt.verify(token, secret);
     req.userInfo = {
       userId: decodedData.userId,

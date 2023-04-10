@@ -12,7 +12,8 @@ export const StateContext = ({ children }) => {
   const [user, setUser] = useState(null);
   const [qty, setQty] = useState(1);
 
-  useEffect(() => {
+  useEffect(async () => {
+    await getUserCart();
     setCartItems(JSON.parse(localStorage.getItem("cartItems")) || []);
     setTotalQuantities(
       JSON.parse(localStorage.getItem("totalQuantities")) || 0
@@ -20,12 +21,26 @@ export const StateContext = ({ children }) => {
     setTotalPrice(JSON.parse(localStorage.getItem("totalPrice")) || 0);
   }, []);
 
+  const getUserCart = async () => {
+    console.log("replace empty cart with user cart");
+    const { data } = await api.getUserCart();
+    const { totalPrice, totalQuantities, cartItems } = data[0];
+
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    localStorage.setItem("totalPrice", JSON.stringify(totalPrice));
+    await localStorage.setItem(
+      "totalQuantities",
+      JSON.stringify(totalQuantities)
+    );
+    if (user) {
+    }
+  };
+
   const updateCart = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
     const cartInfo = {
-      cartItems: JSON.parse(localStorage.getItem("cartItems")) || [],
-      totalPrice: JSON.parse(localStorage.getItem("totalQuantities")) || 0,
-      totalQuantities: JSON.parse(localStorage.getItem("totalPrice")) || 0,
+      cartItems: JSON.parse(localStorage.getItem("cartItems")),
+      totalQuantities: JSON.parse(localStorage.getItem("totalQuantities")),
+      totalPrice: JSON.parse(localStorage.getItem("totalPrice")),
     };
 
     if (user) {
@@ -33,11 +48,9 @@ export const StateContext = ({ children }) => {
     }
   };
 
-  // const getUserCart = async () => {
-  //   const { data } = await api.getUserCart();
-  // };
-
   const persistCartItems = () => {
+    if (user) {
+    }
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
     localStorage.setItem("totalPrice", JSON.stringify(totalPrice));
     localStorage.setItem("totalQuantities", JSON.stringify(totalQuantities));
@@ -46,6 +59,7 @@ export const StateContext = ({ children }) => {
   };
 
   useEffect(() => {
+    console.log("and i should run second");
     persistCartItems();
     updateCart();
   }, [cartItems]);
@@ -54,10 +68,7 @@ export const StateContext = ({ children }) => {
     const checkProductInCart = cartItems.find(
       (item) => item._id === product._id
     );
-    setTotalPrice(
-      (prevTotalPrice) => prevTotalPrice + product.price * quantity
-    );
-    setTotalQuantities((prevTotalQuantities) => prevTotalQuantities + quantity);
+
     if (checkProductInCart) {
       const updatedCartItems = cartItems.map((cartProduct) => {
         if (cartProduct._id === product._id) {
@@ -74,47 +85,23 @@ export const StateContext = ({ children }) => {
     toast.success(`${qty} ${product.name} added to cart.`);
   };
 
-  // const onAdd = async (product, quantity) => {
-  //   const checkProductInCart = cartItems.find(
-  //     (item) => item._id === product._id
-  //   );
-  //   const updatedCartItems = checkProductInCart
-  //     ? cartItems.map((cartProduct) =>
-  //         cartProduct._id === product._id
-  //           ? { ...cartProduct, quantity: cartProduct.quantity + quantity }
-  //           : cartProduct
-  //       )
-  //     : [...cartItems, { ...product, quantity }];
-  //   setCartItems(updatedCartItems);
-  //   setTotalPrice(
-  //     (prevTotalPrice) => prevTotalPrice + product.price * quantity
-  //   );
-  //   setTotalQuantities((prevTotalQuantities) => prevTotalQuantities + quantity);
-  //   toast.success(`${quantity} ${product.name} added to cart.`);
-  // };
-
-  
   const toggleCartItemQuantity = (id, value) => {
     const updatedCartItems = cartItems.map((item) => {
       if (item._id === id) {
         return {
           ...item,
-          quantity: value === "inc" ? item.quantity + 1 : item.quantity - 1,
+          quantity:
+            value === "inc"
+              ? item.quantity + 1
+              : item.quantity > 1
+              ? item.quantity - 1
+              : (item.quantity = 1),
         };
       }
       return item;
     });
 
     setCartItems(updatedCartItems);
-
-    const foundProduct = cartItems.find((item) => item._id === id);
-    if (value === "inc") {
-      setTotalPrice((prevTotalPrice) => prevTotalPrice + foundProduct.price);
-      setTotalQuantities((prevTotalQuantities) => prevTotalQuantities + 1);
-    } else if (value === "dec") {
-      setTotalPrice((prevTotalPrice) => prevTotalPrice - foundProduct.price);
-      setTotalQuantities((prevTotalQuantities) => prevTotalQuantities - 1);
-    }
   };
 
   const incQty = () => {
@@ -130,7 +117,6 @@ export const StateContext = ({ children }) => {
   const logout = () => {
     localStorage.clear("user");
     api.logout();
-    console.log("i ran");
     setUser(null);
   };
 

@@ -40,7 +40,6 @@ const updateCart = async (req, res) => {
         .set({ cartItems, totalPrice, totalQuantities })
         .commit();
     }
-
     res.sendStatus(200);
   } catch (error) {
     console.log({ message: "error at updateCart" });
@@ -48,12 +47,25 @@ const updateCart = async (req, res) => {
 };
 
 const getUserCart = async (req, res) => {
-  // const currentUserId = req.userInfo.userId;
-  // const carts = await client.fetch(`*[_type == "carts" && userId == $userId]`, {
-  //   userId: currentUserId,
-  // });
-  // const cartItems = carts[0].cartItems;
-  // res.json(cartItems);
+  try {
+    const currentUserId = req.userInfo.userId;
+    const carts = await client.fetch(
+      `*[_type == "carts" && userId == $userId]`,
+      {
+        userId: currentUserId,
+        force: true,
+      }
+    );
+    res.json(carts);
+  } catch (error) {
+    console.log({ message: "Failed to getUserCart" });
+  }
 };
+// const currentUserId = req.userInfo.userId;
+// const carts = await client.fetch(`*[_type == "carts" && userId == $userId]`, {
+//   userId: currentUserId,
+// });
+// const cartItems = carts[0].cartItems;
+// res.json(cartItems);
 
 module.exports = { login, logout, updateCart, getUserCart };

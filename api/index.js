@@ -11,4 +11,4 @@ export const API = axios.create({
 export const login = () => API.post("/users");
 export const logout = () => API.delete("/users");
 export const updateCart = (cartInfo) => API.post("/users/cart", cartInfo);
-// export const getUserCart = () => API.get("users/cart");
+export const getUserCart = () => API.get("users/cart");
