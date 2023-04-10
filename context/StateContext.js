@@ -131,16 +131,9 @@ export const StateContext = ({ children }) => {
     router.reload();
   };
 
-  const login = async () => {
-    await localStorage.clear();
-    // temporarily clearing cart here because i don't feel like adding a logged out user's cart to their cart when they log in yet
-    // to do this though, i would just compare the logged out user's cart to see if any id's match and add to quantity if it does and just add the items if they dont
-    const { data } = await api.login();
-    const exp = Date.now() + 7 * 24 * 60 * 60 * 1000;
-    const userData = { data, exp };
-    await localStorage.setItem("user", JSON.stringify(userData));
-  };
-
+  // temporarily clearing cart here because i don't feel like adding a logged out user's cart to their cart when they log in yet
+  // to do this though, i would just compare the logged out user's cart to see if any id's match and add to quantity if it does and just add the items if they dont
+  
   return (
     <Context.Provider
       value={{
@@ -156,7 +149,6 @@ export const StateContext = ({ children }) => {
         onAdd,
         setShowCart,
         toggleCartItemQuantity,
-        login,
         logout,
         setUser,
       }}
