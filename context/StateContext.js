@@ -23,6 +23,9 @@ export const StateContext = ({ children }) => {
     }
 
     await setCartItems(JSON.parse(localStorage.getItem("cartItems")) || []);
+
+    const { data } = await api.netlifyTest();
+    console.log(data);
   }, []);
 
   const calculateTotalQuantityAndPrice = () => {
@@ -133,7 +136,7 @@ export const StateContext = ({ children }) => {
 
   // temporarily clearing cart here because i don't feel like adding a logged out user's cart to their cart when they log in yet
   // to do this though, i would just compare the logged out user's cart to see if any id's match and add to quantity if it does and just add the items if they dont
-  
+
   return (
     <Context.Provider
       value={{
