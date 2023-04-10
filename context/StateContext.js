@@ -51,8 +51,6 @@ export const StateContext = ({ children }) => {
   const updateCart = async () => {
     const cartInfo = {
       cartItems: JSON.parse(localStorage.getItem("cartItems")),
-      totalQuantities: JSON.parse(localStorage.getItem("totalQuantities")),
-      totalPrice: JSON.parse(localStorage.getItem("totalPrice")),
     };
 
     if (user) {
