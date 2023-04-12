@@ -17,17 +17,23 @@ export const StateContext = ({ children }) => {
 
   useEffect(async () => {
     const userData = JSON.parse(localStorage.getItem("user"));
+    // setting user's cart in local storage
+
     if (userData) {
       await setUser(userData.data);
       await getUserCart();
     }
 
-    const cartItems = localStorage.getItem("cartItems");
-    await setCartItems(
-      cartItems && cartItems !== "undefined" ? JSON.parse(cartItems) : []
-    );
+    if (router.pathname !== "/success") {
+      // getting user's cart from local storage and setting it to the cartItems state
+      const cartItems = localStorage.getItem("cartItems");
+      await setCartItems(
+        cartItems && cartItems !== "undefined" ? JSON.parse(cartItems) : []
+      );
+    }
   }, []);
 
+  // gets the total price and quantities in the cartItems
   const calculateTotalQuantityAndPrice = () => {
     const cartCopy = JSON.parse(localStorage.getItem("cartItems"));
     let totalQuantity = 0;
@@ -44,23 +50,28 @@ export const StateContext = ({ children }) => {
     localStorage.setItem("totalPrice", JSON.stringify(totalPrice));
   };
 
+  // gets user's cartItems and sets it in the local storage
   const getUserCart = async () => {
-    const { data } = await api.getUserCart();
-    const { cartItems } = data[0];
+    if (router.pathname !== "/success") {
+      const { data } = await api.getUserCart();
+      const { cartItems } = data[0];
 
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    }
   };
 
+  // gets cart info from localstorage and sends it to user cartItems
   const updateCart = async () => {
     const cartInfo = {
       cartItems: JSON.parse(localStorage.getItem("cartItems")),
     };
 
-    if (user) {
+    if (user !== null) {
       const { data } = await api.updateCart(cartInfo);
     }
   };
 
+  // keeps user's cart items even when page is refreshed, also applies for users that aren't logged in
   const persistCartItems = () => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
     // localStorage.setItem("totalPrice", JSON.stringify(totalPrice));
@@ -72,9 +83,11 @@ export const StateContext = ({ children }) => {
   };
 
   useEffect(() => {
-    persistCartItems();
-    updateCart();
-    calculateTotalQuantityAndPrice();
+    if (router.pathname !== "/success") {
+      persistCartItems();
+      updateCart();
+      calculateTotalQuantityAndPrice();
+    }
   }, [cartItems]);
 
   // handles adding items to cart items
@@ -167,6 +180,8 @@ export const StateContext = ({ children }) => {
         logout,
         setUser,
         removeItem,
+        setCartItems,
+        updateCart,
       }}
     >
       {children}
