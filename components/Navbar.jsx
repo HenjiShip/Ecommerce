@@ -10,7 +10,6 @@ const Navbar = () => {
   const { showCart, setShowCart, totalQuantities, logout, user } =
     useStateContext();
 
-  console.log(user);
 
   useEffect(async () => {
     if (user && Date.now() > user.expire) {

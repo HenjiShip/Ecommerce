@@ -24,7 +24,7 @@ const ProductDetails = ({ product, products }) => {
         <div>
           <div className="image-container">
             <img
-              src={urlFor(product?.image[0])}
+              src={urlFor(product?.image[index])}
               className="product-detail-image"
             />
           </div>
@@ -62,9 +62,7 @@ const ProductDetails = ({ product, products }) => {
               <span className="minus" onClick={decQty}>
                 <AiOutlineMinus />
               </span>
-              <span className="num" onClick="">
-                {qty}
-              </span>
+              <span className="num" /*onClick=""*/>{qty}</span>
               <span className="plus" onClick={incQty}>
                 <AiOutlinePlus />
               </span>
@@ -78,7 +76,7 @@ const ProductDetails = ({ product, products }) => {
             >
               Add to Cart
             </button>
-            <button type="button" className="buy-now" onClick="">
+            <button type="button" className="buy-now" /*onClick=""*/>
               Buy Now
             </button>
           </div>

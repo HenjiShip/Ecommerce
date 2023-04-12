@@ -77,6 +77,7 @@ export const StateContext = ({ children }) => {
     calculateTotalQuantityAndPrice();
   }, [cartItems]);
 
+  // handles adding items to cart items
   const onAdd = async (product, quantity) => {
     const checkProductInCart = cartItems.find(
       (item) => item._id === product._id
@@ -98,6 +99,7 @@ export const StateContext = ({ children }) => {
     toast.success(`${qty} ${product.name} added to cart.`);
   };
 
+  // this changes the quantity of the items when they're in the cart. just like the incQty and decQty though, i should implement dropdown
   const toggleCartItemQuantity = (id, value) => {
     const updatedCartItems = cartItems.map((item) => {
       if (item._id === id) {
@@ -117,6 +119,7 @@ export const StateContext = ({ children }) => {
     setCartItems(updatedCartItems);
   };
 
+  // set quantity on slug page
   const incQty = () => {
     setQty((prevQty) => prevQty + 1);
   };
@@ -126,6 +129,16 @@ export const StateContext = ({ children }) => {
       return prevQty - 1;
     });
   };
+  // a number dropdown list is better than this method. i will probably implement that instead of this
+
+  const removeItem = (product) => {
+    const foundProduct = cartItems.find((item) => item._id === product._id);
+
+    if (foundProduct) {
+      const newCartItems = cartItems.filter((item) => item._id !== product._id);
+      setCartItems(newCartItems);
+    }
+  };
 
   const logout = () => {
     localStorage.clear("user");
@@ -133,7 +146,6 @@ export const StateContext = ({ children }) => {
     setUser(null);
     router.reload();
   };
-
   // temporarily clearing cart here because i don't feel like adding a logged out user's cart to their cart when they log in yet
   // to do this though, i would just compare the logged out user's cart to see if any id's match and add to quantity if it does and just add the items if they dont
 
@@ -154,6 +166,7 @@ export const StateContext = ({ children }) => {
         toggleCartItemQuantity,
         logout,
         setUser,
+        removeItem,
       }}
     >
       {children}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { urlFor } from "../lib/client";
 
 const HeroBanner = ({ heroBanner }) => {
+  const { product } = heroBanner;
   return (
     <div className="hero-banner-container">
       <div>
@@ -15,7 +16,7 @@ const HeroBanner = ({ heroBanner }) => {
         alt="headphones"
         className="hero-banner-image"
       />
-      <Link href="/product/ID">
+      <Link href={`/product/${product}`}>
         <button type="button">{heroBanner.buttonText}</button>
       </Link>
       <div className="desc">
